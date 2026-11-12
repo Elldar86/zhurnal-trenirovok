@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f6feb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Журнал">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<title>Журнал тренировок</title>
+<style>
+:root{--bg:#f4f6fa;--card:#fff;--tx:#1b2330;--mut:#6b7686;--line:#e3e7ee;--pri:#1f6feb;
+--p:#1a9b55;--l:#e09a00;--a:#d93a3a;--e:#2f7fd8;--r:12px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--pri);color:#fff;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:17px;margin:0;font-weight:600}
+header small{opacity:.8;font-size:12px}
+main{padding:12px 12px calc(84px + env(safe-area-inset-bottom));max-width:760px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;border:0;background:none;padding:8px 0 7px;font-size:11px;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button i{font-style:normal;font-size:20px;line-height:1}
+nav button.on{color:var(--pri);font-weight:600}
+.card{background:var(--card);border-radius:var(--r);padding:12px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:#fff;border-radius:20px;padding:7px 13px;font-size:14px;color:var(--tx)}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.datebar{display:flex;align-items:center;gap:8px}
+.datebar input{flex:1;font-size:16px;padding:8px;border:1px solid var(--line);border-radius:10px;background:#fff;text-align:center}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-size:15px;background:#e9eef7;color:var(--tx);font-weight:500}
+.btn.pri{background:var(--pri);color:#fff}.btn.red{background:#fde8e8;color:var(--a)}.btn.sm{padding:6px 10px;font-size:13px}
+.btn.wide{width:100%}
+.ib{border:0;background:#e9eef7;border-radius:10px;width:40px;height:40px;font-size:20px}
+.muted{color:var(--mut);font-size:13px}
+.row{background:#fff;border-radius:var(--r);padding:10px 10px 8px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.who{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.who b{font-weight:600}
+.badge{font-size:12px;padding:3px 8px;border-radius:12px;white-space:nowrap;background:#eef1f5;color:var(--mut)}
+.badge.debt{background:#fde8e8;color:var(--a)}.badge.warn{background:#fff3d6;color:#9a6a00}.badge.ok{background:#e4f6ec;color:var(--p)}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.seg button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:8px 2px;font-size:13px;color:var(--mut)}
+.seg button.p.on{background:var(--p);border-color:var(--p);color:#fff}
+.seg button.l.on{background:var(--l);border-color:var(--l);color:#fff}
+.seg button.a.on{background:var(--a);border-color:var(--a);color:#fff}
+.seg button.e.on{background:var(--e);border-color:var(--e);color:#fff}
+.late{display:flex;align-items:center;gap:6px;margin-top:7px;font-size:13px;color:var(--mut)}
+.late input{width:70px;padding:5px;border:1px solid var(--line);border-radius:8px;font-size:15px}
+.stats{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.stat{flex:1;min-width:70px;background:#fff;border-radius:10px;padding:8px;text-align:center}
+.stat b{display:block;font-size:18px}.stat span{font-size:11px;color:var(--mut)}
+.list .it{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 2px;border-bottom:1px solid var(--line)}
+.list .it:last-child{border-bottom:0}
+.it .t{min-width:0}.it .t b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fab{position:fixed;right:16px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:6;border:0;background:var(--pri);color:#fff;border-radius:28px;padding:14px 18px;font-size:15px;font-weight:600;box-shadow:0 4px 12px rgba(31,111,235,.35)}
+label.f{display:block;margin-bottom:10px;font-size:13px;color:var(--mut)}
+label.f input,label.f select,label.f textarea,input.f,select.f{display:block;width:100%;margin-top:4px;padding:10px;font-size:16px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--tx);font-family:inherit}
+.days{display:flex;gap:4px;margin-top:4px}
+.days label{flex:1}.days input{display:none}
+.days span{display:block;text-align:center;padding:9px 0;border:1px solid var(--line);border-radius:9px;font-size:14px;color:var(--tx)}
+.days input:checked+span{background:var(--pri);border-color:var(--pri);color:#fff}
+.sw{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.sw:last-child{border-bottom:0}.sw input{width:22px;height:22px;flex:none}
+#modal{position:fixed;inset:0;z-index:20;background:rgba(15,20,30,.45);display:flex;align-items:flex-end;justify-content:center}
+#modal.hidden{display:none}
+.sheet{background:var(--bg);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:14px 14px calc(16px + env(safe-area-inset-bottom))}
+.sheet h2{margin:2px 0 12px;font-size:18px;display:flex;justify-content:space-between;align-items:center}
+.sheet h2 button{border:0;background:none;font-size:24px;color:var(--mut)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.btns .btn{flex:1}
+#toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#222b38;color:#fff;padding:9px 14px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30;max-width:90%}
+#toast.show{opacity:1}
+.tw{overflow-x:auto;background:#fff;border-radius:var(--r)}
+table.g{border-collapse:collapse;font-size:12px;min-width:100%}
+table.g th,table.g td{border:1px solid var(--line);padding:5px 4px;text-align:center;white-space:nowrap}
+table.g th:first-child,table.g td:first-child{position:sticky;left:0;background:#fff;text-align:left;max-width:130px;overflow:hidden;text-overflow:ellipsis;z-index:1}
+table.g th{background:#f7f9fc;font-weight:600}
+td.p{color:var(--p);font-weight:700}td.l{color:var(--l);font-weight:700}td.a{color:var(--a);font-weight:700}td.e{color:var(--e);font-weight:700}
+.legend{font-size:12px;color:var(--mut);margin:6px 2px}
+.empty{text-align:center;padding:40px 16px;color:var(--mut)}
+.warnbox{background:#fff3d6;color:#7a5600;border-radius:10px;padding:9px 11px;font-size:13px;margin-bottom:10px}
+h3{font-size:15px;margin:14px 2px 8px}
+.hist{font-size:13px}.hist div{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dashed var(--line)}
+a{color:var(--pri)}
+</style>
+</head>
+<body>
+<header><div><h1 id="title">Журнал</h1><small id="sub"></small></div><div id="hright"></div></header>
+<main id="view"></main>
+<nav id="nav">
+ <button data-tab="journal"><i>✅</i>Журнал</button>
+ <button data-tab="kids"><i>👦</i>Дети</button>
+ <button data-tab="pays"><i>💳</i>Оплаты</button>
+ <button data-tab="report"><i>📊</i>Отчёт</button>
+ <button data-tab="more"><i>⚙️</i>Ещё</button>
+</nav>
+<div id="modal" class="hidden"></div>
+<div id="toast"></div>
+<input type="file" id="importFile" accept=".json,application/json" style="display:none">
+<script>
+'use strict';
+const KEY='attend_journal_v1';
+const WD=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const WD_ORDER=[1,2,3,4,5,6,0];
+const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const ST={P:{t:'Был',s:'✓',c:'p'},L:{t:'Опоздал',s:'О',c:'l'},A:{t:'Пропуск',s:'Н',c:'a'},E:{t:'Уважит.',s:'У',c:'e'}};
+const PLAN={month:'Абонемент на месяц',pack:'Пакет занятий',visit:'Разовые посещения'};
+
+/* ---------- utils ---------- */
+const $=s=>document.querySelector(s);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const pd=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d||1)};
+const today=()=>ymd(new Date());
+const curMonth=()=>today().slice(0,7);
+const fmtDate=s=>{const d=pd(s);return pad(d.getDate())+'.'+pad(d.getMonth()+1)+' '+WD[d.getDay()]};
+const fmtFull=s=>{const d=pd(s);return pad(d.getDate())+'.'+pad(d.getMonth()+1)+'.'+d.getFullYear()};
+const money=n=>Math.round(n).toLocaleString('ru-RU')+' ₽';
+const monthName=ym=>{const [y,m]=ym.split('-').map(Number);return MONTHS[m-1]+' '+y};
+const addMonth=(ym,k)=>{const d=pd(ym+'-01');d.setMonth(d.getMonth()+k);return ymd(d).slice(0,7)};
+const byName=(a,b)=>a.name.localeCompare(b.name,'ru');
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),2200)}
+
+/* ---------- storage ---------- */
+function blank(){return{groups:[],kids:[],att:{},pays:[],settings:{chargeUnexcused:true,monthCredit:true,club:'',lastBackup:null,lastChange:null}}}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);const b=blank();return Object.assign(b,o,{settings:Object.assign(b.settings,o.settings||{})})}}catch(e){}return blank()}
+let S=load();
+function save(){S.settings.lastChange=new Date().toISOString();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('⚠️ Не удалось сохранить данные')}}
+const UI={tab:'journal',group:null,date:today(),pmonth:curMonth(),rmonth:curMonth(),rgroup:null,kq:'',kg:'all',arch:false};
+
+/* ---------- domain ---------- */
+const G=id=>S.groups.find(g=>g.id===id);
+const K=id=>S.kids.find(k=>k.id===id);
+const groupKids=gid=>S.kids.filter(k=>k.groupId===gid&&k.active!==false).sort(byName);
+const attFor=(gid,date)=>S.att[gid+'|'+date]||{};
+function kidMarks(kid){const out=[];for(const key in S.att){const r=S.att[key][kid.id];if(r){const [gid,date]=key.split('|');out.push({date,gid,s:r.s,m:r.m||0})}}return out.sort((a,b)=>a.date<b.date?1:-1)}
+function count(marks){const c={P:0,L:0,A:0,E:0,min:0};marks.forEach(x=>{c[x.s]++;if(x.s==='L')c.min+=+x.m||0});return c}
+const used=c=>c.P+c.L+(S.settings.chargeUnexcused?c.A:0);
+const kidPays=kid=>S.pays.filter(p=>p.kidId===kid.id);
+function plannedInMonth(g,ym){if(!g||!g.days||!g.days.length)return 0;const d=pd(ym+'-01'),m=d.getMonth();let n=0;while(d.getMonth()===m){if(g.days.includes(d.getDay()))n++;d.setDate(d.getDate()+1)}return n}
+function heldDates(gid,ym){return Object.keys(S.att).filter(k=>k.startsWith(gid+'|'+ym)&&Object.keys(S.att[k]).length).map(k=>k.split('|')[1])}
+
+function monthDue(kid,ym,marks){
+  let d=+kid.price||0;
+  if(S.settings.monthCredit){
+    const e=marks.filter(x=>x.s==='E'&&x.date.startsWith(ym)).length;
+    if(e){const pl=plannedInMonth(G(kid.groupId),ym)||Math.max(heldDates(kid.groupId,ym).length,1);d=Math.max(0,d-d*Math.min(e,pl)/pl)}
+  }
+  return d;
+}
+function balance(kid){
+  const marks=kidMarks(kid),pays=kidPays(kid),paid=pays.reduce((s,p)=>s+(+p.amount||0),0);
+  if(kid.plan==='pack'){
+    const bought=pays.reduce((s,p)=>s+(+p.lessons||0),0),rem=bought-used(count(marks));
+    const per=(+kid.price||0)/(+kid.packSize||1);
+    return{v:rem,txt:rem<0?`долг ${-rem} зан. (≈${money(-rem*per)})`:`осталось ${rem} зан.`,short:rem<0?`долг ${-rem} зан.`:`${rem} зан.`,cls:rem<0?'debt':rem<=1?'warn':'ok',debt:rem<0?-rem*per:0}
+  }
+  let due=0;
+  if(kid.plan==='visit')due=used(count(marks))*(+kid.price||0);
+  else{const start=(kid.start||today()).slice(0,7),cm=curMonth();for(let ym=start;ym<=cm;ym=addMonth(ym,1))due+=monthDue(kid,ym,marks)}
+  const bal=Math.round(paid-due);
+  return{v:bal,txt:bal<0?'долг '+money(-bal):bal>0?'аванс '+money(bal):'оплачено',short:bal<0?'−'+money(-bal):bal>0?'+'+money(bal):'✓ оплачено',cls:bal<0?'debt':'ok',debt:bal<0?-bal:0}
+}
+
+/* ---------- modal ---------- */
+function modal(title,body,mount){const m=$('#modal');m.innerHTML=`<div class="sheet"><h2><span>${title}</span><button onclick="closeModal()">×</button></h2>${body}</div>`;m.classList.remove('hidden');m.onclick=e=>{if(e.target===m)closeModal()};if(mount)mount(m)}
+function closeModal(){$('#modal').classList.add('hidden');$('#modal').innerHTML=''}
+function ask(text,yes,btn='Удалить'){modal('Подтверждение',`<p>${text}</p><div class="btns"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn red" id="yes">${btn}</button></div>`,m=>m.querySelector('#yes').onclick=()=>{closeModal();yes()})}
+
+/* ---------- render ---------- */
+function render(){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.tab===UI.tab));
+  $('#sub').textContent=S.settings.club||'';$('#hright').innerHTML='';
+  const v=$('#view');
+  ({journal:rJournal,kids:rKids,pays:rPays,report:rReport,more:rMore})[UI.tab](v);
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{UI.tab=b.dataset.tab;render();window.scrollTo(0,0)});
+function setTitle(t){$('#title').textContent=t}
+function groupChips(sel,fn,all){return `<div class="chips">${all?`<button class="chip ${sel==='all'?'on':''}" onclick="${fn}('all')">Все</button>`:''}${S.groups.map(g=>`<button class="chip ${sel===g.id?'on':''}" onclick="${fn}('${g.id}')">${esc(g.name)}</button>`).join('')}</div>`}
+function noGroups(v){v.innerHTML=`<div class="empty"><p style="font-size:40px;margin:0">👋</p><p>Начните с создания группы:<br>название и дни занятий.</p><button class="btn pri" onclick="editGroup()">+ Создать группу</button></div>`}
+
+/* ----- Journal ----- */
+function rJournal(v){
+  setTitle('Журнал');
+  if(!S.groups.length)return noGroups(v);
+  if(!G(UI.group))UI.group=S.groups[0].id;
+  const g=G(UI.group),kids=groupKids(g.id),a=attFor(g.id,UI.date),d=pd(UI.date);
+  const sched=(g.days||[]).includes(d.getDay());
+  const c=count(kids.filter(k=>a[k.id]).map(k=>a[k.id]));
+  let h=groupChips(UI.group,'selGroup');
+  h+=`<div class="card"><div class="datebar"><button class="ib" onclick="shiftDate(-1)">‹</button><input type="date" value="${UI.date}" onchange="UI.date=this.value||today();render()"><button class="ib" onclick="shiftDate(1)">›</button></div>
+  <div class="muted" style="margin-top:7px;text-align:center">${WD[d.getDay()]}, ${fmtFull(UI.date)} · ${sched?'по расписанию':'<span style="color:var(--l)">не по расписанию</span>'}${g.time?' · '+esc(g.time):''}${UI.date!==today()?` · <a href="#" onclick="UI.date=today();render();return false">сегодня</a>`:''}</div></div>`;
+  if(!kids.length){v.innerHTML=h+`<div class="empty">В группе пока нет детей.<br><br><button class="btn pri" onclick="editKid(null,'${g.id}')">+ Добавить ребёнка</button></div>`;return}
+  h+=`<div class="stats"><div class="stat"><b style="color:var(--p)">${c.P+c.L}/${kids.length}</b><span>пришли</span></div><div class="stat"><b style="color:var(--l)">${c.L}</b><span>опоздали</span></div><div class="stat"><b style="color:var(--a)">${c.A}</b><span>пропуск</span></div><div class="stat"><b style="color:var(--e)">${c.E}</b><span>уважит.</span></div></div>`;
+  const unmarked=kids.filter(k=>!a[k.id]).length;
+  if(unmarked)h+=`<button class="btn wide" style="margin-bottom:10px" onclick="allPresent()">✓ Отметить остальных (${unmarked}) как «Был»</button>`;
+  h+=kids.map(k=>{const r=a[k.id],b=balance(k);return `<div class="row"><div class="who" onclick="kidCard('${k.id}')"><b>${esc(k.name)}</b><span class="badge ${b.cls}">${b.short}</span></div>
+   <div class="seg">${Object.keys(ST).map(s=>`<button class="${ST[s].c} ${r&&r.s===s?'on':''}" onclick="mark('${k.id}','${s}')">${ST[s].t}</button>`).join('')}</div>
+   ${r&&r.s==='L'?`<div class="late">Опоздание: <input type="number" inputmode="numeric" min="0" value="${r.m||''}" onchange="setMin('${k.id}',this.value)"> мин</div>`:''}</div>`}).join('');
+  h+=`<div class="legend">Повторное нажатие снимает отметку. «Уважит.» — болезнь/справка: занятие не списывается${S.settings.monthCredit?', по абонементу делается перерасчёт':''}.</div>`;
+  v.innerHTML=h;
+}
+function selGroup(id){UI.group=id;render()}
+function shiftDate(k){const g=G(UI.group),d=pd(UI.date);for(let i=0;i<14;i++){d.setDate(d.getDate()+k);if(!g.days||!g.days.length||g.days.includes(d.getDay()))break}UI.date=ymd(d);render()}
+function mark(kid,s){const key=UI.group+'|'+UI.date;const o=S.att[key]||(S.att[key]={});const cur=o[kid];
+  if(cur&&cur.s===s)delete o[kid];else o[kid]={s,m:s==='L'?(cur&&cur.m)||0:0};
+  if(!Object.keys(o).length)delete S.att[key];save();render()}
+function setMin(kid,v){const o=S.att[UI.group+'|'+UI.date];if(o&&o[kid]){o[kid].m=Math.max(0,parseInt(v)||0);save()}}
+function allPresent(){const key=UI.group+'|'+UI.date;const o=S.att[key]||(S.att[key]={});groupKids(UI.group).forEach(k=>{if(!o[k.id])o[k.id]={s:'P',m:0}});save();render()}
+
+/* ----- Kids ----- */
+function rKids(v){
+  setTitle('Дети');
+  if(!S.groups.length)return noGroups(v);
+  v.innerHTML=`<input class="f" placeholder="🔍 Поиск по имени или телефону" value="${esc(UI.kq)}" oninput="UI.kq=this.value;kidList()" style="margin-bottom:8px">
+  ${groupChips(UI.kg,'selKG',true)}
+  <div id="klist"></div>
+  <label class="sw" style="border:0"><span class="muted">Показать архив (выбывшие)</span><input type="checkbox" ${UI.arch?'checked':''} onchange="UI.arch=this.checked;kidList()"></label>
+  <button class="fab" onclick="editKid(null,UI.kg!=='all'?UI.kg:null)">+ Ребёнок</button>`;
+  kidList();
+}
+function selKG(id){UI.kg=id;render()}
+function kidList(){
+  const q=UI.kq.trim().toLowerCase();
+  const ks=S.kids.filter(k=>(UI.arch?k.active===false:k.active!==false)&&(UI.kg==='all'||k.groupId===UI.kg)&&(!q||k.name.toLowerCase().includes(q)||(k.phone||'').includes(q))).sort(byName);
+  $('#klist').innerHTML=ks.length?`<div class="card list">${ks.map(k=>{const b=balance(k),g=G(k.groupId);return `<div class="it" onclick="kidCard('${k.id}')"><div class="t"><b>${esc(k.name)}</b><span class="muted">${esc(g?g.name:'без группы')} · ${PLAN[k.plan]}</span></div><span class="badge ${b.cls}">${b.short}</span></div>`}).join('')}</div><div class="muted" style="text-align:center">Всего: ${ks.length}</div>`:`<div class="empty">${UI.arch?'Архив пуст':'Никого не найдено'}</div>`;
+}
+function editKid(id,gid){
+  const k=id?K(id):{name:'',groupId:gid||S.groups[0].id,parent:'',phone:'',plan:'month',price:'',packSize:8,start:today(),note:'',active:true};
+  modal(id?'Изменить данные':'Новый ребёнок',`
+  <label class="f">Фамилия Имя*<input id="kName" value="${esc(k.name)}" autocomplete="off"></label>
+  <label class="f">Группа<select id="kGroup">${S.groups.map(g=>`<option value="${g.id}" ${g.id===k.groupId?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label>
+  <label class="f">Родитель<input id="kParent" value="${esc(k.parent)}"></label>
+  <label class="f">Телефон<input id="kPhone" type="tel" value="${esc(k.phone)}"></label>
+  <label class="f">Схема оплаты<select id="kPlan">${Object.keys(PLAN).map(p=>`<option value="${p}" ${p===k.plan?'selected':''}>${PLAN[p]}</option>`).join('')}</select></label>
+  <label class="f"><span id="kPriceL"></span><input id="kPrice" type="number" inputmode="numeric" value="${esc(k.price)}"></label>
+  <label class="f" id="kPackW">Занятий в пакете<input id="kPack" type="number" inputmode="numeric" value="${esc(k.packSize||8)}"></label>
+  <label class="f" id="kStartW">Начало занятий (с какого месяца считать оплату)<input id="kStart" type="date" value="${esc(k.start||today())}"></label>
+  <label class="f">Заметка<textarea id="kNote" rows="2">${esc(k.note)}</textarea></label>
+  <div class="btns"><button class="btn" onclick="closeModal()">Отмена</button><button class="btn pri" id="kSave">Сохранить</button></div>`,m=>{
+    const upd=()=>{const p=$('#kPlan').value;$('#kPriceL').textContent=p==='month'?'Стоимость в месяц, ₽':p==='pack'?'Стоимость пакета, ₽':'Стоимость одного занятия, ₽';$('#kPackW').style.display=p==='pack'?'':'none';$('#kStartW').style.display=p==='month'?'':'none'};
+    $('#kPlan').onchange=upd;upd();if(!id)setTimeout(()=>$('#kName').focus(),50);
+    $('#kSave').onclick=()=>{const name=$('#kName').value.trim();if(!name)return toast('Введите имя');
+      const o=id?k:{id:uid(),active:true,created:today()};
+      Object.assign(o,{name,groupId:$('#kGroup').value,parent:$('#kParent').value.trim(),phone:$('#kPhone').value.trim(),plan:$('#kPlan').value,price:+$('#kPrice').value||0,packSize:+$('#kPack').value||8,start:$('#kStart').value||today(),note:$('#kNote').value.trim()});
+      if(!id)S.kids.push(o);save();closeModal();render();toast('Сохранено');if(id)kidCard(id)}
+  });
+}
+function kidCard(id){
+  const k=K(id);if(!k)return;const g=G(k.groupId),b=balance(k),marks=kidMarks(k),cm=curMonth();
+  const all=count(marks),mon=count(marks.filter(x=>x.date.startsWith(cm)));
+  const pays=kidPays(k).sort((a,b)=>a.date<b.date?1:-1);
+  const st=c=>`<div class="stats"><div class="stat"><b style="color:var(--p)">${c.P}</b><span>был</span></div><div class="stat"><b style="color:var(--l)">${c.L}</b><span>опозд.${c.min?` (${c.min} мин)`:''}</span></div><div class="stat"><b style="color:var(--a)">${c.A}</b><span>пропуск</span></div><div class="stat"><b style="color:var(--e)">${c.E}</b><span>уважит.</span></div></div>`;
+  modal(esc(k.name),`
+  <div class="card"><div class="muted">${esc(g?g.name:'без группы')} · ${PLAN[k.plan]} · ${k.plan==='pack'?`${money(k.price)} / ${k.packSize} зан.`:money(k.price)+(k.plan==='month'?'/мес':'/зан.')}</div>
+  ${k.parent?`<div style="margin-top:4px">👤 ${esc(k.parent)}</div>`:''}${k.phone?`<div style="margin-top:4px">📞 <a href="tel:${esc(k.phone.replace(/[^\d+]/g,''))}">${esc(k.phone)}</a></div>`:''}
+  ${k.note?`<div class="muted" style="margin-top:4px">📝 ${esc(k.note)}</div>`:''}
+  <div style="margin-top:10px;font-size:18px;font-weight:700;color:${b.cls==='debt'?'var(--a)':b.cls==='warn'?'#9a6a00':'var(--p)'}">${b.txt}</div>${k.active===false?'<div class="badge" style="display:inline-block;margin-top:6px">в архиве</div>':''}</div>
+  <div class="btns" style="margin-top:0"><button class="btn pri" onclick="editPay('${k.id}')">+ Оплата</button><button class="btn" onclick="editKid('${k.id}')">Изменить</button></div>
+  <h3>${monthName(cm)}</h3>${st(mon)}<h3>За всё время</h3>${st(all)}
+  <h3>Оплаты</h3><div class="card hist">${pays.length?pays.map(p=>`<div><span>${fmtFull(p.date)} · ${money(p.amount)}${p.lessons?` · ${p.lessons} зан.`:''}${p.month?` · за ${monthName(p.month).toLowerCase()}`:''}${p.note?' · '+esc(p.note):''}</span><a href="#" onclick="delPay('${p.id}','${k.id}');return false">✕</a></div>`).join(''):'<span class="muted">Оплат нет</span>'}</div>
+  <h3>Посещения</h3><div class="card hist">${marks.length?marks.slice(0,40).map(x=>`<div><span>${fmtDate(x.date)}${x.gid!==k.groupId&&G(x.gid)?' · '+esc(G(x.gid).name):''}</span><b style="color:var(--${ST[x.s].c})">${ST[x.s].t}${x.s==='L'&&x.m?` ${x.m} мин`:''}</b></div>`).join(''):'<span class="muted">Отметок нет</span>'}</div>
+  <div class="btns"><button class="btn" onclick="toggleArch('${k.id}')">${k.active===false?'Вернуть из архива':'В архив (выбыл)'}</button><button class="btn red" onclick="delKid('${k.id}')">Удалить</button></div>`);
+}
+function toggleArch(id){const k=K(id);k.active=k.active===false;save();closeModal();render();toast(k.active?'Возвращён':'Перенесён в архив')}
+function delKid(id){ask('Удалить ребёнка вместе со всеми отметками и оплатами? Если он просто выбыл — лучше перенести в архив.',()=>{S.kids=S.kids.filter(k=>k.id!==id);S.pays=S.pays.filter(p=>p.kidId!==id);for(const key in S.att){delete S.att[key][id];if(!Object.keys(S.att[key]).length)delete S.att[key]}save();render();toast('Удалено')})}
+
+/* ----- Payments ----- */
+function rPays(v){
+  setTitle('Оплаты');
+  if(!S.groups.length)return noGroups(v);
+  const ym=UI.pmonth,ps=S.pays.filter(p=>p.date.startsWith(ym)).sort((a,b)=>a.date<b.date?1:-1);
+  const total=ps.reduce((s,p)=>s+(+p.amount||0),0);
+  const debtors=S.kids.filter(k=>k.active!==false).map(k=>({k,b:balance(k)})).filter(x=>x.b.cls==='debt'||x.b.cls==='warn').sort((a,b)=>b.b.debt-a.b.debt);
+  v.innerHTML=`<div class="card datebar"><button class="ib" onclick="UI.pmonth=addMonth(UI.pmonth,-1);render()">‹</button><b style="flex:1;text-align:center">${monthName(ym)}</b><button class="ib" onclick="UI.pmonth=addMonth(UI.pmonth,1);render()">›</button></div>
+  <div class="stats"><div class="stat"><b>${money(total)}</b><span>получено за месяц</span></div><div class="stat"><b>${ps.length}</b><span>оплат</span></div><div class="stat"><b style="color:var(--a)">${money(debtors.reduce((s,x)=>s+x.b.debt,0))}</b><span>общий долг сейчас</span></div></div>
+  <h3>Должники и заканчивается пакет (${debtors.length})</h3>
+  <div class="card list">${debtors.length?debtors.map(x=>`<div class="it" onclick="editPay('${x.k.id}')"><div class="t"><b>${esc(x.k.name)}</b><span class="muted">${esc(G(x.k.groupId)?.name||'')}${x.k.phone?' · '+esc(x.k.phone):''}</span></div><span class="badge ${x.b.cls}">${x.b.short}</span></div>`).join(''):'<span class="muted">Долгов нет 👍</span>'}</div>
+  <h3>Оплаты за ${monthName(ym).toLowerCase()}</h3>
+  <div class="card list">${ps.length?ps.map(p=>{const k=K(p.kidId);return `<div class="it" onclick="editPay(null,'${p.id}')"><div class="t"><b>${esc(k?k.name:'—')}</b><span class="muted">${fmtFull(p.date)}${p.lessons?` · ${p.lessons} зан.`:''}${p.month?` · за ${monthName(p.month).toLowerCase()}`:''}${p.note?' · '+esc(p.note):''}</span></div><b>${money(p.amount)}</b></div>`}).join(''):'<span class="muted">Оплат пока нет</span>'}</div>
+  <button class="fab" onclick="editPay()">+ Оплата</button>`;
+}
+function editPay(kidId,payId){
+  const p=payId?S.pays.find(x=>x.id===payId):null;
+  const kids=S.kids.filter(k=>k.active!==false||k.id===kidId||(p&&k.id===p.kidId)).sort(byName);
+  if(!kids.length)return toast('Сначала добавьте детей');
+  const kid0=p?p.kidId:(kidId||'');
+  modal(p?'Изменить оплату':'Новая оплата',`
+  <label class="f">Ребёнок<select id="pKid"><option value="">— выберите —</option>${kids.map(k=>`<option value="${k.id}" ${k.id===kid0?'selected':''}>${esc(k.name)} (${esc(G(k.groupId)?.name||'')})</option>`).join('')}</select></label>
+  <div class="muted" id="pInfo" style="margin:-4px 0 10px"></div>
+  <label class="f">Дата<input id="pDate" type="date" value="${p?p.date:today()}"></label>
+  <label class="f">Сумма, ₽<input id="pAmt" type="number" inputmode="numeric" value="${p?p.amount:''}"></label>
+  <label class="f" id="pLesW">Сколько занятий добавить<input id="pLes" type="number" inputmode="numeric" value="${p&&p.lessons?p.lessons:''}"></label>
+  <label class="f" id="pMonW">За какой месяц<input id="pMon" type="month" value="${p&&p.month?p.month:curMonth()}"></label>
+  <label class="f">Комментарий (наличные/перевод и т.п.)<input id="pNote" value="${esc(p?p.note:'')}"></label>
+  <div class="btns">${p?`<button class="btn red" id="pDel">Удалить</button>`:'<button class="btn" onclick="closeModal()">Отмена</button>'}<button class="btn pri" id="pSave">Сохранить</button></div>`,m=>{
+    const upd=fill=>{const k=K($('#pKid').value);$('#pLesW').style.display=k&&k.plan==='pack'?'':'none';$('#pMonW').style.display=k&&k.plan==='month'?'':'none';
+      $('#pInfo').textContent=k?`${PLAN[k.plan]} · сейчас: ${balance(k).txt}`:'';
+      if(fill&&k){$('#pAmt').value=k.price||'';if(k.plan==='pack')$('#pLes').value=k.packSize||''}};
+    $('#pKid').onchange=()=>upd(true);upd(!p);
+    if(p)$('#pDel').onclick=()=>ask('Удалить эту оплату?',()=>{S.pays=S.pays.filter(x=>x.id!==p.id);save();render();toast('Удалено')});
+    $('#pSave').onclick=()=>{const k=K($('#pKid').value);if(!k)return toast('Выберите ребёнка');const amt=+$('#pAmt').value;if(!(amt>0)&&!(k.plan==='pack'&&+$('#pLes').value))return toast('Введите сумму');
+      const o=p||{id:uid()};Object.assign(o,{kidId:k.id,date:$('#pDate').value||today(),amount:amt||0,lessons:k.plan==='pack'?(+$('#pLes').value||0):0,month:k.plan==='month'?$('#pMon').value:'',note:$('#pNote').value.trim()});
+      if(!p)S.pays.push(o);save();closeModal();render();toast('Оплата сохранена')}
+  });
+}
+function delPay(pid,kid){ask('Удалить эту оплату?',()=>{S.pays=S.pays.filter(x=>x.id!==pid);save();render();kidCard(kid)})}
+
+/* ----- Report ----- */
+function reportData(gid,ym){
+  const g=G(gid);const set=new Set(heldDates(gid,ym));
+  if(g&&g.days){const d=pd(ym+'-01'),m=d.getMonth();while(d.getMonth()===m){if(g.days.includes(d.getDay())&&ymd(d)<=today())set.add(ymd(d));d.setDate(d.getDate()+1)}}
+  const dates=[...set].sort();
+  const ids=new Set(groupKids(gid).map(k=>k.id));dates.forEach(dt=>Object.keys(attFor(gid,dt)).forEach(id=>ids.add(id)));
+  const kids=[...ids].map(K).filter(Boolean).sort(byName);
+  const rows=kids.map(k=>{const cells=dates.map(dt=>attFor(gid,dt)[k.id]||null);const c=count(cells.filter(Boolean));
+    const paid=kidPays(k).filter(p=>p.date.startsWith(ym)).reduce((s,p)=>s+(+p.amount||0),0);return{k,cells,c,paid,b:balance(k)}});
+  return{g,dates,rows,held:heldDates(gid,ym).length};
+}
+function rReport(v){
+  setTitle('Отчёт');
+  if(!S.groups.length)return noGroups(v);
+  if(!G(UI.rgroup))UI.rgroup=S.groups[0].id;
+  const ym=UI.rmonth,R=reportData(UI.rgroup,ym);
+  const tot=R.rows.reduce((t,r)=>{t.P+=r.c.P;t.L+=r.c.L;t.A+=r.c.A;t.E+=r.c.E;t.paid+=r.paid;t.debt+=r.b.debt;return t},{P:0,L:0,A:0,E:0,paid:0,debt:0});
+  const marksN=tot.P+tot.L+tot.A+tot.E,pct=marksN?Math.round((tot.P+tot.L)/marksN*100):0;
+  // all groups summary
+  const sum=S.groups.map(g=>{const r=reportData(g.id,ym);const t=r.rows.reduce((t,x)=>{t.v+=x.c.P+x.c.L;t.n+=x.c.P+x.c.L+x.c.A+x.c.E;t.paid+=x.paid;t.debt+=x.b.debt;return t},{v:0,n:0,paid:0,debt:0});return{g,kids:groupKids(g.id).length,held:r.held,pct:t.n?Math.round(t.v/t.n*100):0,paid:t.paid,debt:t.debt}});
+  v.innerHTML=`<div class="card datebar"><button class="ib" onclick="UI.rmonth=addMonth(UI.rmonth,-1);render()">‹</button><b style="flex:1;text-align:center">${monthName(ym)}</b><button class="ib" onclick="UI.rmonth=addMonth(UI.rmonth,1);render()">›</button></div>
+  ${groupChips(UI.rgroup,'selRG')}
+  <div class="stats"><div class="stat"><b>${R.held}</b><span>занятий проведено</span></div><div class="stat"><b>${pct}%</b><span>посещаемость</span></div><div class="stat"><b style="color:var(--l)">${tot.L}</b><span>опозданий</span></div></div>
+  <div class="stats" style="margin-top:0"><div class="stat"><b style="color:var(--a)">${tot.A}</b><span>пропусков</span></div><div class="stat"><b style="color:var(--e)">${tot.E}</b><span>уважит.</span></div><div class="stat"><b>${money(tot.paid)}</b><span>оплачено в мес.</span></div></div>
+  <div class="tw"><table class="g"><thead><tr><th>Ребёнок</th>${R.dates.map(d=>`<th>${pd(d).getDate()}<br><span class="muted">${WD[pd(d).getDay()]}</span></th>`).join('')}<th>Был</th><th>Опз</th><th>Н</th><th>У</th><th>Оплач.</th><th>Баланс</th></tr></thead>
+  <tbody>${R.rows.map(r=>`<tr><td onclick="kidCard('${r.k.id}')">${esc(r.k.name)}</td>${r.cells.map(c=>c?`<td class="${ST[c.s].c}">${ST[c.s].s}${c.s==='L'&&c.m?`<sub>${c.m}</sub>`:''}</td>`:'<td></td>').join('')}<td>${r.c.P+r.c.L}</td><td>${r.c.L}</td><td>${r.c.A}</td><td>${r.c.E}</td><td>${r.paid?money(r.paid):''}</td><td style="color:${r.b.cls==='debt'?'var(--a)':'var(--p)'}">${r.b.short}</td></tr>`).join('')||'<tr><td colspan="9">Нет данных</td></tr>'}</tbody></table></div>
+  <div class="legend">✓ был · О опоздал (мин) · Н пропуск · У уважительная причина. Баланс — на сегодня.</div>
+  <div class="btns"><button class="btn pri" onclick="exportCSV()">⬇️ В Excel (группа)</button>${canShare()?'<button class="btn" onclick="exportCSV(true)">📤 Отправить</button>':''}</div>
+  <h3>Все группы за ${monthName(ym).toLowerCase()}</h3>
+  <div class="tw"><table class="g"><thead><tr><th>Группа</th><th>Детей</th><th>Занятий</th><th>Посещ.</th><th>Оплачено</th><th>Долг</th></tr></thead><tbody>
+  ${sum.map(s=>`<tr><td>${esc(s.g.name)}</td><td>${s.kids}</td><td>${s.held}</td><td>${s.pct}%</td><td>${money(s.paid)}</td><td style="color:var(--a)">${s.debt?money(s.debt):''}</td></tr>`).join('')}
+  <tr><th>Итого</th><th>${sum.reduce((a,s)=>a+s.kids,0)}</th><th>${sum.reduce((a,s)=>a+s.held,0)}</th><th></th><th>${money(sum.reduce((a,s)=>a+s.paid,0))}</th><th>${money(sum.reduce((a,s)=>a+s.debt,0))}</th></tr></tbody></table></div>`;
+}
+function selRG(id){UI.rgroup=id;render()}
+function csvCell(x){x=String(x??'');return /[;"\n]/.test(x)?'"'+x.replace(/"/g,'""')+'"':x}
+function exportCSV(share){
+  const R=reportData(UI.rgroup,UI.rmonth);
+  const lines=[[`${S.settings.club||'Журнал тренировок'} — ${R.g.name} — ${monthName(UI.rmonth)}`],[],['Ребёнок',...R.dates.map(d=>fmtDate(d)),'Был','Опоздал','Минут опозд.','Пропуск','Уважит.','Оплачено в месяце','Баланс на сегодня']];
+  R.rows.forEach(r=>lines.push([r.k.name,...r.cells.map(c=>c?ST[c.s].s+(c.s==='L'&&c.m?c.m:''):''),r.c.P+r.c.L,r.c.L,r.c.min,r.c.A,r.c.E,r.paid,r.b.txt]));
+  lines.push([],['Обозначения: ✓ был, О опоздал (минуты), Н пропуск, У уважительная причина']);
+  const text='﻿'+lines.map(l=>l.map(csvCell).join(';')).join('\r\n');
+  const name=`Отчёт_${R.g.name}_${UI.rmonth}.csv`.replace(/[\\/:*?"<>|]/g,'_');
+  share?shareFile(name,text,'text/csv'):download(name,text,'text/csv;charset=utf-8');
+}
+
+/* ----- More / settings ----- */
+function rMore(v){
+  setTitle('Настройки');
+  const lb=S.settings.lastBackup,days=lb?Math.floor((Date.now()-new Date(lb))/864e5):null;
+  v.innerHTML=`
+  ${!lb||days>=7?`<div class="warnbox">⚠️ ${lb?`Последняя резервная копия ${days} дн. назад`:'Резервная копия ещё не делалась'}. Данные хранятся только на этом телефоне — сохраняйте копию хотя бы раз в неделю.</div>`:''}
+  <div class="card"><label class="f" style="margin:0">Название клуба (для отчётов)<input value="${esc(S.settings.club)}" onchange="S.settings.club=this.value.trim();save();render()"></label></div>
+  <h3>Группы</h3>
+  <div class="card list">${S.groups.length?S.groups.map(g=>`<div class="it" onclick="editGroup('${g.id}')"><div class="t"><b>${esc(g.name)}</b><span class="muted">${(g.days||[]).length?WD_ORDER.filter(d=>g.days.includes(d)).map(d=>WD[d]).join(', '):'дни не заданы'}${g.time?' · '+esc(g.time):''} · детей: ${groupKids(g.id).length}</span></div><span class="muted">›</span></div>`).join(''):'<span class="muted">Групп пока нет</span>'}</div>
+  <button class="btn wide" onclick="editGroup()">+ Добавить группу</button>
+  <h3>Правила учёта</h3>
+  <div class="card">
+   <label class="sw"><span>Неуважительный пропуск списывает занятие<br><span class="muted">для пакетов и разовых</span></span><input type="checkbox" ${S.settings.chargeUnexcused?'checked':''} onchange="S.settings.chargeUnexcused=this.checked;save()"></label>
+   <label class="sw"><span>Перерасчёт месячного абонемента за уважительные пропуски<br><span class="muted">стоимость уменьшается пропорционально занятиям по расписанию</span></span><input type="checkbox" ${S.settings.monthCredit?'checked':''} onchange="S.settings.monthCredit=this.checked;save()"></label>
+   <div class="muted" style="padding-top:8px">Уважительный пропуск никогда не списывает занятие из пакета.</div>
+  </div>
+  <h3>Резервная копия</h3>
+  <div class="card">
+   <div class="muted" style="margin-bottom:8px">${lb?'Последняя: '+new Date(lb).toLocaleString('ru-RU'):'Ещё не делалась'}</div>
+   <div class="btns" style="margin-top:0"><button class="btn pri" onclick="backup()">💾 Сохранить файл</button>${canShare()?'<button class="btn" onclick="backup(true)">📤 Отправить (Telegram…)</button>':''}</div>
+   <button class="btn wide" style="margin-top:8px" onclick="$('#importFile').click()">📂 Восстановить из файла</button>
+   <div class="muted" style="margin-top:8px">Через копию можно перенести журнал на другой телефон.</div>
+  </div>
+  <h3>Установка на телефон</h3>
+  <div class="card muted">Android (Chrome): меню ⋮ → «Добавить на главный экран» / «Установить приложение».<br>iPhone (Safari): кнопка «Поделиться» → «На экран “Домой”».<br>После этого журнал открывается с иконки и работает без интернета.<br><br>Хранилище: <span id="persist">проверка…</span></div>
+  <button class="btn red wide" style="margin-top:14px" onclick="ask('Удалить ВСЕ данные журнала с этого устройства? Сначала сделайте резервную копию.',()=>{S=blank();save();render();toast('Данные удалены')},'Удалить всё')">Удалить все данные</button>
+  <div class="muted" style="text-align:center;margin:14px 0">Журнал тренировок · v1.0</div>`;
+  if(navigator.storage&&navigator.storage.persisted)navigator.storage.persisted().then(p=>{const e=$('#persist');if(e)e.textContent=p?'защищено от автоочистки ✓':'обычное (установите на главный экран для надёжности)'}).catch(()=>{});else $('#persist').textContent='—';
+}
+function editGroup(id){
+  const g=id?G(id):{name:'',days:[],time:''};
+  modal(id?'Группа':'Новая группа',`
+  <label class="f">Название*<input id="gName" value="${esc(g.name)}" placeholder="Например: Младшая 5–7 лет"></label>
+  <div class="f" style="font-size:13px;color:var(--mut);margin-bottom:10px">Дни занятий<div class="days">${WD_ORDER.map(d=>`<label><input type="checkbox" value="${d}" ${(g.days||[]).includes(d)?'checked':''}><span>${WD[d]}</span></label>`).join('')}</div></div>
+  <label class="f">Время<input id="gTime" value="${esc(g.time)}" placeholder="17:00"></label>
+  <div class="btns">${id?'<button class="btn red" id="gDel">Удалить</button>':'<button class="btn" onclick="closeModal()">Отмена</button>'}<button class="btn pri" id="gSave">Сохранить</button></div>`,m=>{
+    if(!id)setTimeout(()=>$('#gName').focus(),50);
+    $('#gSave').onclick=()=>{const name=$('#gName').value.trim();if(!name)return toast('Введите название');
+      const o=id?g:{id:uid()};Object.assign(o,{name,time:$('#gTime').value.trim(),days:[...m.querySelectorAll('.days input:checked')].map(x=>+x.value)});
+      if(!id){S.groups.push(o);UI.group=o.id}save();closeModal();render();toast('Сохранено')};
+    if(id)$('#gDel').onclick=()=>{if(S.kids.some(k=>k.groupId===id))return toast('Сначала переведите детей в другую группу');ask('Удалить группу «'+esc(g.name)+'»?',()=>{S.groups=S.groups.filter(x=>x.id!==id);save();render()})};
+  });
+}
+
+/* ----- files ----- */
+const canShare=()=>{try{return !!(navigator.canShare&&navigator.canShare({files:[new File(['x'],'x.txt',{type:'text/plain'})]}))}catch(e){return false}};
+function download(name,text,mime){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:mime}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);return true}catch(e){toast('Не удалось сохранить файл');return false}}
+async function shareFile(name,text,mime){try{await navigator.share({files:[new File([text],name,{type:mime})],title:name});return true}catch(e){if(e&&e.name!=='AbortError')toast('Отправка недоступна');return false}}
+async function backup(share){
+  const name=`journal_backup_${today()}.json`,text=JSON.stringify({app:'attend_journal',v:1,saved:new Date().toISOString(),data:S});
+  const ok=share?await shareFile(name,text,'application/json'):download(name,text,'application/json');
+  if(ok){S.settings.lastBackup=new Date().toISOString();save();render();toast('Копия сохранена')}
+}
+$('#importFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result);const d=o.data||o;if(!Array.isArray(d.groups)||!Array.isArray(d.kids))throw 0;
+  ask(`Заменить текущие данные копией от ${o.saved?new Date(o.saved).toLocaleString('ru-RU'):'?'}? (групп: ${d.groups.length}, детей: ${d.kids.length})`,()=>{const b=blank();S=Object.assign(b,d,{settings:Object.assign(b.settings,d.settings||{})});save();UI.group=null;render();toast('Данные восстановлены')},'Восстановить')}catch(err){toast('Файл не похож на резервную копию')}};r.readAsText(f)};
+
+/* ---------- start ---------- */
+render();
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+</script>
+</body>
+</html>
